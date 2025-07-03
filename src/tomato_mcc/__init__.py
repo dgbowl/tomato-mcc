@@ -64,7 +64,10 @@ class Device(ModelDevice):
     @property
     @read_delay
     def temperature(self) -> pint.Quantity:
-        t = ul.t_in(self.board_num, self.channel, enums.TempScale.CELSIUS)
+        try:
+            t = ul.t_in(self.board_num, self.channel, enums.TempScale.CELSIUS)
+        except ul.ULError as e:
+            raise AttributeError(str(e)) from e
         return pint.Quantity(t, "celsius")
 
     def attrs(self, **kwargs: dict) -> dict[str, Attr]:
