@@ -2,6 +2,7 @@ import importlib
 import sys
 import time
 from datetime import datetime
+from datetime import timezone as tz
 from functools import wraps
 from types import ModuleType
 from typing import Any
@@ -11,18 +12,17 @@ import psutil
 import xarray as xr
 from tomato.driverinterface_2_1 import Attr, ModelDevice, ModelInterface
 from tomato.driverinterface_2_1.decorators import coerce_val
-from tomato.driverinterface_2_1.types import Val
 
 pint.set_application_registry(pint.UnitRegistry(autoconvert_offset_to_baseunit=True))
-ul: ModuleType = None
-enums: ModuleType = None
+ul: ModuleType = None  # ty: ignore[invalid-assignment]
+enums: ModuleType = None  # ty: ignore[invalid-assignment]
 
 READ_DELAY = 0.01
 
 
 def read_delay(func):
     @wraps(func)
-    def wrapper(self: ModelDevice, **kwargs):
+    def wrapper(self: Device, **kwargs):
         if time.perf_counter() - self.last_action < READ_DELAY:
             time.sleep(READ_DELAY)
         return func(self, **kwargs)
@@ -74,7 +74,7 @@ class Device(ModelDevice):
             )
         except ul.ULError as e:
             raise AttributeError(str(e)) from e
-        return pint.Quantity(t, "celsius")
+        return pint.Quantity(t, "celsius")  # ty: ignore[invalid-return-type]
 
     def attrs(self, **kwargs: dict) -> dict[str, Attr]:
         attrs_dict = {
@@ -87,7 +87,7 @@ class Device(ModelDevice):
         return capabs
 
     def do_measure(self, **kwargs: dict) -> None:
-        coords = {"uts": (["uts"], [datetime.now().timestamp()])}
+        coords = {"uts": (["uts"], [datetime.now(tz.utc).timestamp()])}
         temperature = self.temperature
         data_vars = {
             "temperature": (["uts"], [temperature.m], {"units": str(temperature.u)}),
@@ -103,5 +103,5 @@ class Device(ModelDevice):
         return getattr(self, attr)
 
     @coerce_val
-    def set_attr(self, attr: str, val: Any, **kwargs: dict) -> Val:
+    def set_attr(self, attr: str, val: Any, **kwargs: dict) -> None:
         pass
