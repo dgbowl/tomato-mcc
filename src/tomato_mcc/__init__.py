@@ -1,16 +1,17 @@
-from typing import Any
+import importlib
+import sys
+import time
+from datetime import datetime
+from functools import wraps
 from types import ModuleType
-from tomato.driverinterface_2_1 import ModelInterface, ModelDevice, Attr
+from typing import Any
+
+import pint
+import psutil
+import xarray as xr
+from tomato.driverinterface_2_1 import Attr, ModelDevice, ModelInterface
 from tomato.driverinterface_2_1.decorators import coerce_val
 from tomato.driverinterface_2_1.types import Val
-import psutil
-import sys
-import importlib
-from datetime import datetime
-import xarray as xr
-import pint
-import time
-from functools import wraps
 
 pint.set_application_registry(pint.UnitRegistry(autoconvert_offset_to_baseunit=True))
 ul: ModuleType = None
@@ -65,7 +66,12 @@ class Device(ModelDevice):
     @read_delay
     def temperature(self) -> pint.Quantity:
         try:
-            t = ul.t_in(self.board_num, self.channel, enums.TempScale.CELSIUS)
+            t = ul.t_in(
+                self.board_num,
+                self.channel,
+                enums.TempScale.CELSIUS,
+                options=enums.TInOptions.WAITFORNEWDATA,
+            )
         except ul.ULError as e:
             raise AttributeError(str(e)) from e
         return pint.Quantity(t, "celsius")
