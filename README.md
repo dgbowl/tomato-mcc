@@ -1,7 +1,7 @@
 # tomato-mcc
 `tomato` driver for MCC DAQ temperature readers (ME-Redlab, Digilent).
 
-This driver is based on the [`mcculw`](https://github.com/mccdaq/mcculw) library, and is currently Windows-only. This driver is developed by the [ConCat lab at TU Berlin](https://tu.berlin/en/concat).
+This driver is based on the [`mcculw`](https://github.com/mccdaq/mcculw) library for Windows, and the [`uldaq`](https://github.com/mccdaq/uldaq) library for Linux. This driver is developed by the [ConCat lab at TU Berlin](https://tu.berlin/en/concat).
 
 ## Installation
 ### Windows
