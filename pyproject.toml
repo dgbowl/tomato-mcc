@@ -14,6 +14,7 @@ readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "mcculw >= 1.0.0; platform_system == 'Windows'",
+    "uldaq >= 1.2.3; platform_system == 'Linux'",
     "tomato >= 2.1rc3",
 ]
 classifiers = [
