@@ -1,3 +1,4 @@
+import logging
 import time
 from datetime import datetime
 from datetime import timezone as tz
@@ -11,6 +12,7 @@ from tomato.driverinterface_2_1 import Attr, ModelDevice, ModelInterface
 from tomato.driverinterface_2_1.decorators import coerce_val
 
 pint.set_application_registry(pint.UnitRegistry(autoconvert_offset_to_baseunit=True))
+logger = logging.getLogger(__name__)
 
 READ_DELAY = 0.05
 
@@ -49,6 +51,12 @@ class Device(ModelDevice):
         devices = uldaq.get_daq_device_inventory(uldaq.InterfaceType.USB)
         self.daq = uldaq.DaqDevice(devices[self.board_num])
         self.daq.connect()
+        cfg = self.daq.get_ai_device().get_config()
+        tc_type = self.driver.settings.get("tc_type", {}).get(f"{self.channel}", "J")
+        par = getattr(uldaq.TcType, tc_type, uldaq.TcType.K)
+        if cfg.get_chan_tc_type(self.channel) != par:
+            logger.info("setting TC type to '%s'", repr(par))
+            cfg.set_chan_tc_type(self.channel, par)
 
     @property
     @read_delay
