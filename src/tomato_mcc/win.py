@@ -1,4 +1,5 @@
 import importlib
+import logging
 import sys
 import time
 from datetime import datetime
@@ -13,6 +14,7 @@ from tomato.driverinterface_2_1 import Attr, ModelDevice, ModelInterface
 from tomato.driverinterface_2_1.decorators import coerce_val
 
 pint.set_application_registry(pint.UnitRegistry(autoconvert_offset_to_baseunit=True))
+logger = logging.getLogger(__name__)
 ul: ModuleType = None  # ty: ignore[invalid-assignment]
 enums: ModuleType = None  # ty: ignore[invalid-assignment]
 
@@ -59,6 +61,25 @@ class Device(ModelDevice):
         self.channel = int(key[1])
         self.last_action = time.perf_counter()
         super().__init__(driver, key, **kwargs)
+        tc_type = self.driver.settings.get("tc_type", {}).get(f"{self.channel}", "J")
+        par = getattr(enums.TcType, tc_type, enums.TcType.K)
+        if (
+            ul.get_config(
+                enums.InfoType.BOARDINFO,
+                self.board_num,
+                self.channel,
+                enums.BoardInfo.CHANTCTYPE,
+            )
+            != par
+        ):
+            logger.warning("setting TC type to '%s'", repr(par))
+            ul.set_config(
+                enums.InfoType.BOARDINFO,
+                self.board_num,
+                self.channel,
+                enums.BoardInfo.CHANTCTYPE,
+                par,
+            )
 
     @property
     @read_delay

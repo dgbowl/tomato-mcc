@@ -8,10 +8,12 @@ This driver is based on the [`mcculw`](https://github.com/mccdaq/mcculw) library
 1. Install DAQami, make sure you know the `dllpath` where `cbw32.dll` and `cbw64.dll` can be found. Normally, this is `"C:\Program Files (x86)\Measurement Computing\DAQ"`.
 2. Install InstaCal, configure your board selecting appropriate thermocouple type. This will generate `CB.CFG`.
 3. Pass the `dllpath` as `settings['dllpath']` to the driver.
+4. Optionally, you can set thermocouple type per channel using `settings['tc_type'][<channel>]`.
 
 ### Linux
 1. Install the `libuldaq` library, either from source or from your package manager.
 2. Make sure you can access the USB device by adding your user to the `adm` group.
+3. Optionally, you can set thermocouple type per channel using `settings['tc_type'][<channel>]`.
 
 ## Supported functions
 
