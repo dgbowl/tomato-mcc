@@ -23,7 +23,7 @@ READ_DELAY = 0.01
 
 def read_delay(func):
     @wraps(func)
-    def wrapper(self: Device, **kwargs):
+    def wrapper(self: "Device", **kwargs):
         if time.perf_counter() - self.last_action < READ_DELAY:
             time.sleep(READ_DELAY)
         return func(self, **kwargs)
